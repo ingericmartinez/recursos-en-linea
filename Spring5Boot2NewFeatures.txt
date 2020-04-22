@@ -1,0 +1,46 @@
+resumen curso: https://www.linkedin.com/learning/spring-5-0-and-spring-boot-2-0-new-features
+
+
+CORE
+
+jdk version 8 mandatory
+Java EE 1.7 required - java EE 1.8 supported
+9 supported
+hibernate 5
+flyway 5
+thymeleaf 3
+version 5.1 soportara Java 11
+jsr 305 annotation for software defect and static analysis
+
+
+WEB
+
+soporte completo a servlet 3.1
+soporta http 2 PUSH via pushBuilder API
+(requiere tomca 9 /servlet 4.0 container)
+jackson version 3.9
+full support JSON B
+programable @ResponseStatus
+
+
+
+TEST
+
+soporte Junit 5 "jupiter"
+@RunWith deprecated
+soporta @ExtendsWith
+SpringJunitWebConfig proporciona soporte de contexto servlet a pruebas
+conditional running con @EnabledIf @DisabledIf
+ejecucion en paralelo de pruebas
+webmocks: MockHttpServletRequest, getContentAsByteArray, MockMvc : print () and log() support
+
+
+BOOT
+
+actuator:
+@Endpoint annotation
+read, wire and @DeleteOperation
+@EndpointWebExtension @EndpointJMXExtension
+
+
+micrometer:
