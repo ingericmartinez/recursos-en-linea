@@ -41,6 +41,12 @@ actuator:
 @Endpoint annotation
 read, wire and @DeleteOperation
 @EndpointWebExtension @EndpointJMXExtension
-
+http 2 - undertow, tomcat, netty
 
 micrometer:
+
+incluido en actuator
+MeterRegistry (injected in your beans)
+metricas rpeconfiguradas para MVC, Datasource, RabbitMq, Cache
+actuator endpoint
+/actuator/metrics/{metric name}	
