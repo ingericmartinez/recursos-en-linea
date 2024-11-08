@@ -182,3 +182,53 @@ public class MethodCallDiagram {
 
 
 
+@echo off
+
+REM Set was_home environment variable
+setx was_home "C:\Users" /m
+
+REM Set ant_home environment variable 
+setx ant_home "C:\Users" /m
+
+echo Environment variables set:
+echo was_home = %was_home%
+echo ant_home = %ant_home%
+
+
+
+/////
+
+
+@echo off
+
+# Set was_home and ant_home environment variables
+setx was_home "C:\Users" /m
+setx ant_home "C:\Users" /m
+
+echo Environment variables set:
+echo was_home = %was_home%
+echo ant_home = %ant_home%
+
+
+
+
+
+@echo off
+
+REM Set was_home and ant_home for the current session
+set was_home="C:\Users"
+set ant_home="C:\Users"
+
+REM Set was_home and ant_home permanently
+setx was_home "C:\Users" /m
+setx ant_home "C:\Users" /m
+
+REM Display environment variables
+echo Environment variables set:
+echo was_home = %was_home%
+echo ant_home = %ant_home%
+
+
+
+
+
