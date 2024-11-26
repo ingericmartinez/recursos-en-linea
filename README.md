@@ -230,5 +230,158 @@ echo ant_home = %ant_home%
 
 
 
+//////
 
+
+
+1. Agrega las Dependencias
+Asegúrate de agregar las siguientes dependencias en tu archivo pom.xml:
+
+XML
+<dependency>
+    <groupId>com.ibm.mq</groupId>
+    <artifactId>com.ibm.mq.allclient</artifactId>
+    <version>9.2.0.0</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-activemq</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jms</artifactId>
+</dependency>
+2. Configura las Propiedades
+Configura las propiedades de conexión en el archivo application.properties:
+
+Code
+ibm.mq.queueManager=QUEUE_MANAGER_NAME
+ibm.mq.channel=CHANNEL_NAME
+ibm.mq.connName=HOSTNAME(PORT)
+ibm.mq.user=USERNAME
+ibm.mq.password=PASSWORD
+spring.jms.template.default-destination=QUEUE_NAME
+3. Configura el JmsTemplate
+Crea una clase de configuración para definir el JmsTemplate:
+
+Java
+import com.ibm.mq.jms.MQConnectionFactory;
+import com.ibm.msg.client.wmq.WMQConstants;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.core.JmsTemplate;
+
+import javax.jms.JMSException;
+
+@Configuration
+@EnableJms
+public class JmsConfig {
+
+    @Bean
+    public MQConnectionFactory mqConnectionFactory() throws JMSException {
+        MQConnectionFactory factory = new MQConnectionFactory();
+        factory.setHostName("HOSTNAME");
+        factory.setPort(1414);
+        factory.setQueueManager("QUEUE_MANAGER_NAME");
+        factory.setChannel("CHANNEL_NAME");
+        factory.setTransportType(WMQConstants.WMQ_CM_CLIENT);
+        factory.setStringProperty(WMQConstants.USERID, "USERNAME");
+        factory.setStringProperty(WMQConstants.PASSWORD, "PASSWORD");
+        return factory;
+    }
+
+    @Bean
+    public JmsTemplate jmsTemplate(MQConnectionFactory mqConnectionFactory) {
+        return new JmsTemplate(mqConnectionFactory);
+    }
+}
+4. Leer y Escribir en la Cola
+Utiliza JmsTemplate para leer y escribir mensajes en la cola.
+
+Clase para enviar mensajes:
+
+Java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MessageSender {
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
+    public void sendMessage(String message) {
+        jmsTemplate.convertAndSend("QUEUE_NAME", message);
+    }
+}
+Clase para recibir mensajes:
+
+Java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MessageReceiver {
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
+    public String receiveMessage() {
+        return (String) jmsTemplate.receiveAndConvert("QUEUE_NAME");
+    }
+}
+5. Clase de Prueba
+Escribe una clase de prueba para verificar la funcionalidad de lectura y escritura.
+
+Java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jms.core.JmsTemplate;
+
+@ExtendWith(MockitoExtension.class)
+public class JmsServiceTest {
+
+    @Mock
+    private JmsTemplate jmsTemplate;
+
+    @InjectMocks
+    private MessageSender messageSender;
+
+    @InjectMocks
+    private MessageReceiver messageReceiver;
+
+    private final String queueName = "QUEUE_NAME";
+    private final String message = "Test Message";
+
+    @BeforeEach
+    public void setup() {
+        messageSender = new MessageSender(jmsTemplate);
+        messageReceiver = new MessageReceiver(jmsTemplate);
+    }
+
+    @Test
+    public void testSendMessage() {
+        doNothing().when(jmsTemplate).convertAndSend(queueName, message);
+        messageSender.sendMessage(message);
+        verify(jmsTemplate, times(1)).convertAndSend(queueName, message);
+    }
+
+    @Test
+    public void testReceiveMessage() {
+        when(jmsTemplate.receiveAndConvert(queueName)).thenReturn(message);
+        String receivedMessage = messageReceiver.receiveMessage();
+        assertEquals(message, receivedMessage);
+    }
+}
+Este ejemplo cubre la configuración básica y las pruebas para leer y escribir en una cola de IBM MQ utilizando JmsTemplate en un proyecto Spring Boot 3.x. Asegúrate de ajustar los valores y nombres según tu configuración específica.
 
